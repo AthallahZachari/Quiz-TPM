@@ -46,3 +46,4 @@ class DetailWeaponModel {
     return data;
   }
 }
+

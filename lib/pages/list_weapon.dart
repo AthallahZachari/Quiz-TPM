@@ -1,24 +1,23 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:quiz/pages/char_detail.dart';
 import 'package:quiz/connection/base.dart';
 import 'package:quiz/components/list_card.dart';
+import 'package:quiz/components/detail_weapon.dart';
 
-class CharacterPage extends StatefulWidget {
+class WeaponPage extends StatefulWidget {
   @override
   _CharacterPageState createState() => _CharacterPageState();
 }
 
-class _CharacterPageState extends State<CharacterPage> {
-
-  Future<List<String>>? _characterNames;
+class _CharacterPageState extends State<WeaponPage> {
+  Future<List<String>>? _weaponList;
   final BaseNetwork _client = BaseNetwork();
 
   @override
   void initState() {
     super.initState();
     try {
-      _characterNames = _client.fetchMainCharacters();
+      _weaponList = _client.fetchMainWeapons();
     } on Exception catch (e) {
       print('Error fetching weapons: $e');
     }
@@ -30,37 +29,32 @@ class _CharacterPageState extends State<CharacterPage> {
       appBar: AppBar(
         centerTitle: true,
         title: Text(
-          "Genshin Characters",
+          "Genshin Weapons",
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.indigo),
         ),
       ),
       body: Center(
         child: FutureBuilder<List<String>>(
-          future: _characterNames,
-          builder: (context, snapshot){
-            if(snapshot.hasData){
+          future: _weaponList,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
               return ListView.builder(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
-                  final character = snapshot.data![index];
+                  final weaponName = snapshot.data![index];
+                  final String imageUrl = 'https://genshin.jmp.blue/weapons/$weaponName/icon';
                   return GestureDetector(
-                    child: ListCard(context: context, title: character),
-                    onTap: (){
-                      print("name: $character");
-                      Navigator.push(
-                        context, 
-                        MaterialPageRoute(
-                          builder: (context) => CharacterDetailPage(charName: character),
-                        ),
-                      );
-                    },
-                  );
+                      child: ListCard(context: context, title: weaponName, image: imageUrl),
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => WeaponDetailPage(weaponName: weaponName, weaponImage: imageUrl,)));
+                      });
                   //return Text(weapon);
                 },
               );
-            }else if(snapshot.hasError){
-
-            }
+            } else if (snapshot.hasError) {}
             return CircularProgressIndicator();
           },
         ),
